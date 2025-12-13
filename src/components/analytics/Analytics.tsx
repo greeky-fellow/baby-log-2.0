@@ -133,11 +133,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({ logs, inventory, volumeUni
                         <span className="font-bold text-gray-900 dark:text-white">{formatDuration(allTimeStats.totalNursingTime)}</span>
                     </div>
 
-                    <div className="px-4 py-3 flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10">
+                    <div className="px-4 py-3 flex justify-between items-center">
                         <span className="text-gray-600 dark:text-gray-300 text-sm">Milk Storage Bags</span>
                         <span className="font-bold text-gray-900 dark:text-white">{allTimeStats.inventoryCount}</span>
                     </div>
-                    <div className="px-4 py-3 flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10">
+                    <div className="px-4 py-3 flex justify-between items-center">
                         <span className="text-gray-600 dark:text-gray-300 text-sm">Milk Storage Vol.</span>
                         <span className="font-bold text-gray-900 dark:text-white">{displayVolume(allTimeStats.inventoryVolume, volumeUnit)} {getUnitLabel(volumeUnit)}</span>
                     </div>
