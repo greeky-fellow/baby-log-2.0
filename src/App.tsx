@@ -12,6 +12,7 @@ import { LogEntry } from './components/forms/LogEntry';
 import { Settings } from './components/settings/Settings';
 import { Analytics } from './components/analytics/Analytics';
 import { FullHistory } from './components/history/FullHistory';
+import { importLegacyLogs } from './utils/dataImport';
 
 export interface MilkInventoryItem {
   id: string;
@@ -159,6 +160,24 @@ export default function BabyLog() {
     });
   };
 
+  // Import Actions
+  const handleImport = () => {
+    requestConfirm('Import Legacy Data?', 'This will import logs from "public/old_logs.csv". This may create duplicates if run multiple times.', async () => {
+      if (!user) return;
+      const result = await importLegacyLogs(familyId, user.uid);
+      if (result.success) {
+        confetti({ particleCount: 200, spread: 100, colors: ['#22c55e', '#3b82f6'] });
+        alert(`Successfully imported ${result.count} logs!`);
+        // Refresh logs? Or they sync automatically?
+        // App seems to rely on snapshot if setup, but local state isn't directly updated here except via snapshot.
+        // If snapshot listener is active, it should update.
+        // Assuming onSnapshot is working.
+      } else {
+        alert('Import failed. Check console for details.');
+      }
+    });
+  };
+
 
   if (configMissing) {
     return (
@@ -230,6 +249,7 @@ export default function BabyLog() {
                   onToggleCategory={toggleCategory}
                   onClose={() => setCurrentView('home')}
                   logs={logs}
+                  onImportData={handleImport}
                 />
               )}
 
