@@ -101,15 +101,15 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
             </div>
 
             {/* Filter Chips */}
-            <div className="bg-white dark:bg-gray-900 px-4 pb-4 border-b border-gray-100 dark:border-gray-800 overflow-x-auto">
+            <div className="bg-white dark:bg-gray-900 px-4 pt-2 pb-4 border-b border-gray-100 dark:border-gray-800 overflow-x-auto no-scrollbar">
                 <div className="flex gap-2">
                     {filters.map(f => (
                         <button
                             key={f.id}
                             onClick={() => setFilterType(f.id)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${filterType === f.id
-                                ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors border ${filterType === f.id
+                                ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-md'
+                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                                 }`}
                         >
                             {f.label}
@@ -119,19 +119,25 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
             </div>
 
             {/* Date Range */}
-            <div className="bg-white dark:bg-gray-900 px-4 pb-4 border-b border-gray-100 dark:border-gray-800 flex gap-2">
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={e => setStartDate(e.target.value)}
-                    className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-xs dark:text-gray-300"
-                />
-                <input
-                    type="date"
-                    value={endDate}
-                    onChange={e => setEndDate(e.target.value)}
-                    className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-xs dark:text-gray-300"
-                />
+            <div className="bg-white dark:bg-gray-900 px-4 pb-6 border-b border-gray-100 dark:border-gray-800 flex gap-3">
+                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2">
+                    <Calendar size={14} className="text-gray-400" />
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={e => setStartDate(e.target.value)}
+                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none"
+                    />
+                </div>
+                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2">
+                    <Calendar size={14} className="text-gray-400" />
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={e => setEndDate(e.target.value)}
+                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none"
+                    />
+                </div>
             </div>
 
             {/* List */}
