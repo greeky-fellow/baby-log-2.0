@@ -9,6 +9,9 @@ import { ConfirmModal } from './components/ui/ConfirmModal';
 import { Header } from './components/layout/Header';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { LogEntry } from './components/forms/LogEntry';
+import { Settings } from './components/settings/Settings';
+import { Analytics } from './components/analytics/Analytics';
+import { FullHistory } from './components/history/FullHistory';
 
 export interface MilkInventoryItem {
   id: string;
@@ -25,8 +28,10 @@ export default function BabyLog() {
   const [logs, setLogs] = useState<any[]>([]);
   const [inventory, setInventory] = useState<MilkInventoryItem[]>([]);
   const [familyId, setFamilyId] = useState(() => localStorage.getItem('familyId') || 'demo-family');
-  const [isEditingFamilyId, setIsEditingFamilyId] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
+  const [babyName, setBabyName] = useState(() => localStorage.getItem('babyName') || 'Baby Log');
+
+  useEffect(() => { localStorage.setItem('babyName', babyName); }, [babyName]);
 
   // UI State
   const [currentView, setCurrentView] = useState('home');
@@ -174,16 +179,9 @@ export default function BabyLog() {
 
           <Header
             syncStatus={syncStatus}
-            familyId={familyId}
-            isEditingFamilyId={isEditingFamilyId}
-            onSetFamilyId={setFamilyId}
-            onSetIsEditingFamilyId={setIsEditingFamilyId}
-            darkMode={darkMode}
-            onToggleDarkMode={() => setDarkMode(!darkMode)}
-            volumeUnit={volumeUnit}
-            onToggleVolumeUnit={() => setVolumeUnit(u => u === 'ml' ? 'oz' : 'ml')}
-            visibleCategories={visibleCategories}
-            onToggleCategory={toggleCategory}
+            babyName={babyName}
+            onOpenSettings={() => setCurrentView('settings')}
+            onOpenHistory={() => setCurrentView('history')}
           />
 
           {/* CONTENT */}
@@ -208,6 +206,39 @@ export default function BabyLog() {
                   inventory={inventory}
                   onCheckIn={handleCheckIn}
                   onCheckOut={handleCheckOut}
+                />
+              )}
+
+              {currentView === 'settings' && (
+                <Settings
+                  babyName={babyName}
+                  onSetBabyName={setBabyName}
+                  familyId={familyId}
+                  onSetFamilyId={setFamilyId}
+                  darkMode={darkMode}
+                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  volumeUnit={volumeUnit}
+                  onToggleVolumeUnit={() => setVolumeUnit(u => u === 'ml' ? 'oz' : 'ml')}
+                  visibleCategories={visibleCategories}
+                  onToggleCategory={toggleCategory}
+                  onClose={() => setCurrentView('home')}
+                  logs={logs}
+                />
+              )}
+
+              {currentView === 'history' && (
+                <FullHistory
+                  logs={logs}
+                  onDelete={deleteLog}
+                  onClose={() => setCurrentView('home')}
+                  volumeUnit={volumeUnit}
+                />
+              )}
+
+              {currentView === 'analytics' && (
+                <Analytics
+                  logs={logs}
+                  volumeUnit={volumeUnit}
                 />
               )}
 

@@ -49,7 +49,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ logs, visibleCategories, v
                                     <div className="flex items-start gap-3">
                                         <div className="bg-yellow-100 p-2 rounded-full text-yellow-600"><Milk size={20} /></div>
                                         <div className="flex-1">
-                                            <p className="font-semibold text-gray-900 dark:text-white text-sm mb-1">Feeding</p>
+                                            <p className="font-semibold text-gray-900 dark:text-white mb-1">Feeding</p>
                                             <div className="space-y-1">
                                                 {lastBottleFeed && (
                                                     <p className="text-gray-500 dark:text-gray-400 text-xs">
@@ -71,7 +71,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ logs, visibleCategories, v
                             </>
                         )}
                         {visibleCategories.pumping && (
-                            <Card>
+                            <Card className="col-span-2">
                                 <div className="flex items-start gap-3">
                                     <div className="bg-blue-100 p-2 rounded-full text-blue-600"><Droplets size={20} /></div>
                                     <div>
@@ -82,7 +82,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ logs, visibleCategories, v
                             </Card>
                         )}
                         {visibleCategories.diaper && (
-                            <Card>
+                            <Card className="col-span-2">
                                 <div className="flex items-start gap-3">
                                     <div className="bg-purple-100 p-2 rounded-full text-purple-600"><Layers size={20} /></div>
                                     <div>
@@ -93,7 +93,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ logs, visibleCategories, v
                             </Card>
                         )}
                         {visibleCategories.sleep && (
-                            <Card>
+                            <Card className="col-span-2">
                                 <div className="flex items-start gap-3">
                                     <div className="bg-indigo-100 p-2 rounded-full text-indigo-600"><Moon size={20} /></div>
                                     <div>
