@@ -119,23 +119,23 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
             </div>
 
             {/* Date Range */}
-            <div className="bg-white dark:bg-gray-900 px-4 pb-6 border-b border-gray-100 dark:border-gray-800 flex gap-3">
-                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
+            <div className="bg-white dark:bg-gray-900 px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex gap-3">
+                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2 min-w-0">
+                    <Calendar size={14} className="text-gray-400 shrink-0" />
                     <input
                         type="date"
                         value={startDate}
                         onChange={e => setStartDate(e.target.value)}
-                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none"
+                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none min-w-0"
                     />
                 </div>
-                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2">
-                    <Calendar size={14} className="text-gray-400" />
+                <div className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 flex items-center gap-2 min-w-0">
+                    <Calendar size={14} className="text-gray-400 shrink-0" />
                     <input
                         type="date"
                         value={endDate}
                         onChange={e => setEndDate(e.target.value)}
-                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none"
+                        className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 w-full outline-none min-w-0"
                     />
                 </div>
             </div>
