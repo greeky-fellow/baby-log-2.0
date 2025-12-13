@@ -5,10 +5,11 @@ import { displayVolume, getUnitLabel } from '../../lib/utils';
 
 interface AnalyticsProps {
     logs: any[];
+    inventory: any[];
     volumeUnit: 'ml' | 'oz';
 }
 
-export const Analytics: React.FC<AnalyticsProps> = ({ logs, volumeUnit }) => {
+export const Analytics: React.FC<AnalyticsProps> = ({ logs, inventory, volumeUnit }) => {
     // Helper to check if a date is today
     const isToday = (dateString: string) => {
         const date = new Date(dateString);
@@ -36,10 +37,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({ logs, volumeUnit }) => {
 
     // Calculate All Time Stats
     const allTimeStats = {
-        totalLogs: logs.length,
         totalFeedings: logs.filter(l => l.type === 'feeding').length,
+        totalBottleVolume: logs.filter(l => l.type === 'feeding' && l.subType === 'bottle').reduce((sum, l) => sum + (l.amount || 0), 0),
+        totalPumpedVolume: logs.filter(l => l.type === 'pumping').reduce((sum, l) => sum + (l.amount || 0), 0),
+        totalNursingTime: logs.filter(l => l.type === 'feeding' && l.subType === 'breast').reduce((sum, l) => sum + (l.totalDuration || 0), 0) / 60, // minutes
         totalDiapers: logs.filter(l => l.type === 'diaper').length,
         totalSleep: logs.filter(l => l.type === 'sleep').reduce((sum, l) => sum + (l.duration || 0), 0), // minutes
+        inventoryCount: inventory.length,
+        inventoryVolume: inventory.reduce((sum, item) => sum + (item.volume || 0), 0),
     };
 
     const formatDuration = (minutes: number) => {
@@ -112,19 +117,37 @@ export const Analytics: React.FC<AnalyticsProps> = ({ logs, volumeUnit }) => {
                 </div>
                 <Card className="p-0 divide-y divide-gray-100 dark:divide-gray-800">
                     <div className="px-4 py-3 flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300 text-sm">Total Logs</span>
-                        <span className="font-bold text-gray-900 dark:text-white">{allTimeStats.totalLogs}</span>
-                    </div>
-                    <div className="px-4 py-3 flex justify-between items-center">
                         <span className="text-gray-600 dark:text-gray-300 text-sm">Total Feedings</span>
                         <span className="font-bold text-gray-900 dark:text-white">{allTimeStats.totalFeedings}</span>
                     </div>
+                    <div className="px-4 py-3 flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">Total Bottle Vol.</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{displayVolume(allTimeStats.totalBottleVolume, volumeUnit)} {getUnitLabel(volumeUnit)}</span>
+                    </div>
+                    <div className="px-4 py-3 flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">Total Pumped Vol.</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{displayVolume(allTimeStats.totalPumpedVolume, volumeUnit)} {getUnitLabel(volumeUnit)}</span>
+                    </div>
+                    <div className="px-4 py-3 flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">Total Nursing Time</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{formatDuration(allTimeStats.totalNursingTime)}</span>
+                    </div>
+
+                    <div className="px-4 py-3 flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">Milk Storage Bags</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{allTimeStats.inventoryCount}</span>
+                    </div>
+                    <div className="px-4 py-3 flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">Milk Storage Vol.</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{displayVolume(allTimeStats.inventoryVolume, volumeUnit)} {getUnitLabel(volumeUnit)}</span>
+                    </div>
+
                     <div className="px-4 py-3 flex justify-between items-center">
                         <span className="text-gray-600 dark:text-gray-300 text-sm">Total Diapers</span>
                         <span className="font-bold text-gray-900 dark:text-white">{allTimeStats.totalDiapers}</span>
                     </div>
                     <div className="px-4 py-3 flex justify-between items-center">
-                        <span className="text-gray-600 dark:text-gray-300 text-sm">Total Sleep Logged</span>
+                        <span className="text-600 dark:text-gray-300 text-sm">Total Sleep Logged</span>
                         <span className="font-bold text-gray-900 dark:text-white">{formatDuration(allTimeStats.totalSleep)}</span>
                     </div>
                 </Card>

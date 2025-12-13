@@ -74,6 +74,46 @@ export const LogEntry: React.FC<LogEntryProps> = ({ visibleCategories, volumeUni
     }, []);
 
     // Timer Logic
+    // Timer Persistence & Logic
+    useEffect(() => {
+        const saved = localStorage.getItem('breastTimerState');
+        if (saved) {
+            try {
+                const s = JSON.parse(saved);
+                const now = Date.now();
+                // If a timer was running, add the elapsed time since last tick
+                let additionalTime = 0;
+                if (s.activeTimer && s.lastTick) {
+                    additionalTime = (now - s.lastTick) / 1000;
+                }
+
+                if (s.leftTimer || s.leftTimer === 0) setLeftTimer(s.leftTimer + (s.activeTimer === 'left' ? additionalTime : 0));
+                if (s.rightTimer || s.rightTimer === 0) setRightTimer(s.rightTimer + (s.activeTimer === 'right' ? additionalTime : 0));
+
+                if (s.timerStartTime) setTimerStartTime(s.timerStartTime);
+                if (s.lastActiveSide) setLastActiveSide(s.lastActiveSide);
+
+                // Set active timer last to trigger the interval effect
+                if (s.activeTimer) setActiveTimer(s.activeTimer);
+            } catch (e) {
+                console.error("Failed to restore timer", e);
+            }
+        }
+    }, []);
+
+    // Persist state on every change
+    useEffect(() => {
+        const state = {
+            activeTimer,
+            leftTimer,
+            rightTimer,
+            timerStartTime,
+            lastActiveSide,
+            lastTick: Date.now()
+        };
+        localStorage.setItem('breastTimerState', JSON.stringify(state));
+    }, [activeTimer, leftTimer, rightTimer, timerStartTime, lastActiveSide]);
+
     useEffect(() => {
         if (activeTimer) {
             lastTickRef.current = Date.now();
@@ -225,7 +265,8 @@ export const LogEntry: React.FC<LogEntryProps> = ({ visibleCategories, volumeUni
 
     const saveDiaper = (diaperType: string) => {
         onRequestConfirm('Log Diaper?', `Log a ${diaperType} diaper?`, async () => {
-            onSave('diaper', { status: diaperType });
+            const timestamp = new Date(pumpTime).toISOString();
+            onSave('diaper', { status: diaperType }, timestamp);
         });
     };
 
@@ -505,22 +546,37 @@ export const LogEntry: React.FC<LogEntryProps> = ({ visibleCategories, volumeUni
 
                 {/* Diaper */}
                 {activeTab === 'diaper' && (
-                    <div className="p-4 grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <button onClick={() => saveDiaper('wet')} className="aspect-square rounded-2xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 flex flex-col items-center justify-center gap-3 transition-all group">
-                            <Droplets size={40} className="text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="font-bold text-lg text-blue-700 dark:text-blue-300">Wet</span>
-                        </button>
-                        <button onClick={() => saveDiaper('dirty')} className="aspect-square rounded-2xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-transparent hover:border-amber-200 dark:hover:border-amber-800 flex flex-col items-center justify-center gap-3 transition-all group">
-                            <div className="bg-amber-500 w-10 h-10 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">💩</div>
-                            <span className="font-bold text-lg text-amber-700 dark:text-amber-300">Dirty</span>
-                        </button>
-                        <button onClick={() => saveDiaper('both')} className="aspect-square rounded-2xl bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-800 flex flex-col items-center justify-center gap-3 col-span-2 transition-all group">
-                            <div className="flex -space-x-2 group-hover:scale-110 transition-transform">
-                                <div className="bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-white"><Droplets size={16} /></div>
-                                <div className="bg-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs">💩</div>
+                    <div className="p-4 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 transition-colors">
+                            <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1 block">Time Change</label>
+                            <div className="flex items-center gap-2">
+                                <Clock size={18} className="text-gray-400 dark:text-gray-500" />
+                                <input
+                                    type="datetime-local"
+                                    value={pumpTime} // Using pumpTime as a generic timestamp since initialized to now
+                                    onChange={(e) => setPumpTime(e.target.value)}
+                                    className="bg-transparent font-medium text-gray-800 dark:text-gray-200 w-full outline-none"
+                                />
                             </div>
-                            <span className="font-bold text-lg text-purple-700 dark:text-purple-300">Both</span>
-                        </button>
+                        </div>
+
+                        <div className="flex gap-4 h-32">
+                            <button onClick={() => saveDiaper('wet')} className="flex-1 rounded-2xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 flex flex-col items-center justify-center gap-3 transition-all group">
+                                <Droplets size={32} className="text-blue-500 group-hover:scale-110 transition-transform" />
+                                <span className="font-bold text-base text-blue-700 dark:text-blue-300">Wet</span>
+                            </button>
+                            <button onClick={() => saveDiaper('dirty')} className="flex-1 rounded-2xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-2 border-transparent hover:border-amber-200 dark:hover:border-amber-800 flex flex-col items-center justify-center gap-3 transition-all group">
+                                <div className="bg-amber-500 w-9 h-9 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform text-sm">💩</div>
+                                <span className="font-bold text-base text-amber-700 dark:text-amber-300">Dirty</span>
+                            </button>
+                            <button onClick={() => saveDiaper('both')} className="flex-1 rounded-2xl bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-800 flex flex-col items-center justify-center gap-3 transition-all group">
+                                <div className="flex -space-x-2 group-hover:scale-110 transition-transform">
+                                    <div className="bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center text-white"><Droplets size={14} /></div>
+                                    <div className="bg-amber-500 w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px]">💩</div>
+                                </div>
+                                <span className="font-bold text-base text-purple-700 dark:text-purple-300">Both</span>
+                            </button>
+                        </div>
                     </div>
                 )}
                 {/* Sleep */}

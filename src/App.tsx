@@ -61,12 +61,19 @@ export default function BabyLog() {
   const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', action: null as (() => Promise<void>) | null });
 
   // Visibility State
-  const [visibleCategories, setVisibleCategories] = useState({
-    feeding: true,
-    pumping: true,
-    diaper: true,
-    sleep: true
+  const [visibleCategories, setVisibleCategories] = useState(() => {
+    const saved = localStorage.getItem('visibleCategories');
+    return saved ? JSON.parse(saved) : {
+      feeding: true,
+      pumping: true,
+      diaper: true,
+      sleep: true
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem('visibleCategories', JSON.stringify(visibleCategories));
+  }, [visibleCategories]);
 
 
   // Auth & Sync
@@ -238,6 +245,7 @@ export default function BabyLog() {
               {currentView === 'analytics' && (
                 <Analytics
                   logs={logs}
+                  inventory={inventory}
                   volumeUnit={volumeUnit}
                 />
               )}

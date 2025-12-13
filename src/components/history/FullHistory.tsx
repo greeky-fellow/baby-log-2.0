@@ -38,17 +38,28 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
     const [filterType, setFilterType] = useState<string>('all');
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
     const filteredLogs = useMemo(() => {
         let result = logs;
         if (filterType !== 'all') {
             result = result.filter(log => log.type === filterType);
+        }
+        if (startDate) {
+            const start = new Date(startDate).setHours(0, 0, 0, 0);
+            result = result.filter(log => new Date(log.timestamp).getTime() >= start);
+        }
+        if (endDate) {
+            const end = new Date(endDate).setHours(23, 59, 59, 999);
+            result = result.filter(log => new Date(log.timestamp).getTime() <= end);
         }
         return [...result].sort((a, b) => {
             const timeA = new Date(a.timestamp).getTime();
             const timeB = new Date(b.timestamp).getTime();
             return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
         });
-    }, [logs, filterType, sortOrder]);
+    }, [logs, filterType, sortOrder, startDate, endDate]);
 
     const filters = [
         { id: 'all', label: 'All' },
@@ -70,7 +81,7 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
     }, [filteredLogs]);
 
     return (
-        <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 bg-gray-50 dark:bg-black/20">
+        <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 bg-gray-50 dark:bg-black/20 rounded-t-3xl overflow-hidden">
             {/* Header */}
             <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 p-4 sticky top-0 z-10 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -97,14 +108,30 @@ export const FullHistory: React.FC<FullHistoryProps> = ({ logs, onDelete, onClos
                             key={f.id}
                             onClick={() => setFilterType(f.id)}
                             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${filterType === f.id
-                                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
                             {f.label}
                         </button>
                     ))}
                 </div>
+            </div>
+
+            {/* Date Range */}
+            <div className="bg-white dark:bg-gray-900 px-4 pb-4 border-b border-gray-100 dark:border-gray-800 flex gap-2">
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                    className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-xs dark:text-gray-300"
+                />
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
+                    className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-xs dark:text-gray-300"
+                />
             </div>
 
             {/* List */}
