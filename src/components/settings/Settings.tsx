@@ -16,6 +16,7 @@ interface SettingsProps {
     onClose: () => void;
     logs: any[];
     onImportData: () => void;
+    onRemoveDuplicates: () => void;
 }
 
 const THEME_COLORS = [
@@ -52,7 +53,8 @@ export const Settings: React.FC<SettingsProps> = ({
     onToggleCategory,
     onClose,
     logs,
-    onImportData
+    onImportData,
+    onRemoveDuplicates
 }) => {
     const handleExport = () => {
         const headers = ['Timestamp', 'Type', 'Detail', 'Amount', 'Unit', 'Duration (min)', 'Notes'];
@@ -149,6 +151,19 @@ export const Settings: React.FC<SettingsProps> = ({
                             className="bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                         >
                             Import Data
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-4 mt-4">
+                        <div>
+                            <span className="font-medium text-gray-900 dark:text-white block">Cleanup</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">Remove duplicate entries</span>
+                        </div>
+                        <button
+                            onClick={onRemoveDuplicates}
+                            className="bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                        >
+                            Clean Duplicates
                         </button>
                     </div>
                 </Card>

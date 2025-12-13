@@ -13,6 +13,7 @@ import { Settings } from './components/settings/Settings';
 import { Analytics } from './components/analytics/Analytics';
 import { FullHistory } from './components/history/FullHistory';
 import { importLegacyLogs } from './utils/dataImport';
+import { removeDuplicateLogs } from './utils/deduplication';
 
 export interface MilkInventoryItem {
   id: string;
@@ -140,7 +141,7 @@ export default function BabyLog() {
     });
   };
 
-  const toggleCategory = (cat: string) => setVisibleCategories(prev => ({ ...prev, [cat]: !prev[cat as keyof typeof prev] }));
+  const toggleCategory = (cat: string) => setVisibleCategories((prev: any) => ({ ...prev, [cat]: !prev[cat as keyof typeof prev] }));
 
   // Inventory Actions
   const handleCheckIn = (item: Omit<MilkInventoryItem, 'id' | 'status'>) => {
@@ -178,6 +179,24 @@ export default function BabyLog() {
     });
   };
 
+
+  // Deduplicate Actions
+  const handleRemoveDuplicates = () => {
+    requestConfirm('Remove Duplicate Logs?', 'This will search for and remove duplicate entries based on timestamp and type. This might take a moment.', async () => {
+      if (!user) return;
+      const result = await removeDuplicateLogs(familyId);
+      if (result.success) {
+        if (result.deletedCount > 0) {
+          confetti({ particleCount: 150, spread: 80, colors: ['#f87171', '#ef4444'] });
+          alert(`Removed ${result.deletedCount} duplicate entries.`);
+        } else {
+          alert('No duplicates found.');
+        }
+      } else {
+        alert('Deduplication failed. Check console.');
+      }
+    });
+  };
 
   if (configMissing) {
     return (
@@ -244,12 +263,13 @@ export default function BabyLog() {
                   darkMode={darkMode}
                   onToggleDarkMode={() => setDarkMode(!darkMode)}
                   volumeUnit={volumeUnit}
-                  onToggleVolumeUnit={() => setVolumeUnit(u => u === 'ml' ? 'oz' : 'ml')}
+                  onToggleVolumeUnit={() => setVolumeUnit(prev => prev === 'ml' ? 'oz' : 'ml')}
                   visibleCategories={visibleCategories}
                   onToggleCategory={toggleCategory}
                   onClose={() => setCurrentView('home')}
                   logs={logs}
                   onImportData={handleImport}
+                  onRemoveDuplicates={handleRemoveDuplicates}
                 />
               )}
 
