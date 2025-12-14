@@ -102,6 +102,16 @@ export default function BabyLog() {
     return () => unsubscribe();
   }, [user, familyId]);
 
+  useEffect(() => {
+    if (!user || configMissing) return;
+    const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'baby_inventory'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setInventory(allItems.filter((item: any) => item.familyId === familyId) as MilkInventoryItem[]);
+    });
+    return () => unsubscribe();
+  }, [user, familyId]);
+
   useEffect(() => { localStorage.setItem('familyId', familyId); }, [familyId]);
 
 
@@ -144,20 +154,18 @@ export default function BabyLog() {
   const toggleCategory = (cat: string) => setVisibleCategories((prev: any) => ({ ...prev, [cat]: !prev[cat as keyof typeof prev] }));
 
   // Inventory Actions
-  const handleCheckIn = (item: Omit<MilkInventoryItem, 'id' | 'status'>) => {
-    const newItem: MilkInventoryItem = {
-      ...item,
-      id: crypto.randomUUID(),
-      status: 'stored'
-    };
-    setInventory(prev => [...prev, newItem]);
+  const handleCheckIn = async (item: Omit<MilkInventoryItem, 'id' | 'status'>) => {
+    if (!user) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'baby_inventory'), {
+      familyId, userId: user.uid, ...item, status: 'stored', created_at: new Date().toISOString()
+    });
     confetti({ particleCount: 50, spread: 50, colors: ['#60a5fa', '#93c5fd'] }); // Blue confetti for milk check-in
   };
 
   const handleCheckOut = (id: string, action: 'thaw' | 'delete') => {
     requestConfirm(action === 'thaw' ? 'Thaw Milk?' : 'Remove Item?', `Are you sure you want to ${action} this item?`, async () => {
-      setInventory(prev => prev.filter(item => item.id !== id));
-      // For now, we just remove it. In future, we could move to a 'thawed' list or create a log entry.
+      if (!user) return;
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'baby_inventory', id));
     });
   };
 
